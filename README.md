@@ -8,6 +8,13 @@ Welcome to my everyday ARM template catalog. This repo includes of templates whe
 ### Deploy a single vnet with multiple subnets, which have different settings, from a parameter file
 Story behind this: ever wondered how to deploy a single vnet in ARM that has multiple subnets but those subnets would have different settings? For example, you would want that some subnets have NSG's or route tables but not all of them? (Like gatewaysubnet or something). This is a template that does exactly that. All subnet specific settings go in a parameter file and if the properties securityRules and routingRules are empty it will not assign a nsg or route table.
 
+If you run the example files, Azure will deploy the following resources:
+- NSG for subnet 1
+- NSG for subnet 2
+- Route table for subnet 1
+- Route table for subnet 3
+- Virtual network
+
 Fun fact: this use case finally showed me that functions in ARM can be usefull after all.
 
 ---
