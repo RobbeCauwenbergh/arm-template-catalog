@@ -1,0 +1,142 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetwork": {
+            "value": {
+                "name": "vnet1",
+                "addressPrefixes": [
+                    "10.0.0.0/24"
+                ],
+                "subnets": [
+                    {
+                        "name": "subnet1",
+                        "addressPrefix": "10.0.0.0/28",
+                        "securityRules": [
+                            {
+                                "name": "sr-in-deny-all",
+                                "properties": {
+                                    "protocol": "TCP",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "*",
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "access": "Deny",
+                                    "priority": 100,
+                                    "direction": "Inbound",
+                                    "sourcePortRanges": [],
+                                    "destinationPortRanges": [],
+                                    "sourceAddressPrefixes": [],
+                                    "destinationAddressPrefixes": []
+                                }
+                            },
+                            {
+                                "name": "sr-out-deny-all",
+                                "properties": {
+                                    "protocol": "TCP",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "*",
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "access": "Deny",
+                                    "priority": 100,
+                                    "direction": "Outbound",
+                                    "sourcePortRanges": [],
+                                    "destinationPortRanges": [],
+                                    "sourceAddressPrefixes": [],
+                                    "destinationAddressPrefixes": []
+                                }
+                            }
+                        ],
+                        "routingRules": [
+                            {
+                                "name": "example-udr",
+                                "properties": {
+                                    "addressPrefix": "0.0.0.0/0",
+                                    "nextHopType": "VnetLocal"
+                                }
+                            }
+                        ],
+                        "serviceEndpoints": [],
+                        "delegations": [],
+                        "disableBgpRoutePropagation": false
+                    },
+                    {
+                        "name": "subnet2",
+                        "addressPrefix": "10.0.0.16/28",
+                        "securityRules": [
+                            {
+                                "name": "sr-in-deny-all",
+                                "properties": {
+                                    "protocol": "TCP",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "*",
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "access": "Deny",
+                                    "priority": 100,
+                                    "direction": "Inbound",
+                                    "sourcePortRanges": [],
+                                    "destinationPortRanges": [],
+                                    "sourceAddressPrefixes": [],
+                                    "destinationAddressPrefixes": []
+                                }
+                            },
+                            {
+                                "name": "sr-out-deny-all",
+                                "properties": {
+                                    "protocol": "TCP",
+                                    "sourcePortRange": "*",
+                                    "destinationPortRange": "*",
+                                    "sourceAddressPrefix": "*",
+                                    "destinationAddressPrefix": "*",
+                                    "access": "Deny",
+                                    "priority": 100,
+                                    "direction": "Outbound",
+                                    "sourcePortRanges": [],
+                                    "destinationPortRanges": [],
+                                    "sourceAddressPrefixes": [],
+                                    "destinationAddressPrefixes": []
+                                }
+                            }
+                        ],
+                        "routingRules": [
+                        ],
+                        "serviceEndpoints": [],
+                        "delegations": [],
+                        "disableBgpRoutePropagation": false
+                    },
+                    {
+                        "name": "subnet3",
+                        "addressPrefix": "10.0.0.32/28",
+                        "securityRules": [
+                        ],
+                        "routingRules": [
+                            {
+                                "name": "example-udr",
+                                "properties": {
+                                    "addressPrefix": "0.0.0.0/0",
+                                    "nextHopType": "VnetLocal"
+                                }
+                            }
+                        ],
+                        "serviceEndpoints": [],
+                        "delegations": [],
+                        "disableBgpRoutePropagation": false
+                    },
+                    {
+                        "name": "subnet4",
+                        "addressPrefix": "10.0.0.48/28",
+                        "securityRules": [
+                        ],
+                        "routingRules": [
+                        ],
+                        "serviceEndpoints": [],
+                        "delegations": [],
+                        "disableBgpRoutePropagation": false
+                    }
+                ]
+            }
+        }
+    }
+}

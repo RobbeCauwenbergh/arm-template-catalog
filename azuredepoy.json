@@ -1,0 +1,163 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetwork": {
+            "type": "object"
+        }
+    },
+    "functions": [
+        {
+            "namespace": "functions",
+            "members": {
+                "subnetWithNsgAndRouteTable": {
+                    "parameters": [
+                        {
+                            "name": "subnet",
+                            "type": "object"
+                        }
+                    ],
+                    "output": {
+                        "type": "object",
+                        "value": {
+                            "name": "[parameters('subnet').name]",
+                            "properties": {
+                                "addressPrefix": "[parameters('subnet').addressPrefix]",
+                                "networkSecurityGroup": {
+                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnet').name))]"
+                                },
+                                "routeTable": {
+                                    "id": "[resourceId('Microsoft.Network/routeTables', concat('rt-', parameters('subnet').name))]"
+                                },
+                                "serviceEndpoints": "[parameters('subnet').serviceEndpoints]",
+                                "delegations": "[parameters('subnet').delegations]"
+                            }
+                        }
+                    }
+                },
+                "subnetWithoutNsgOrRouteTable": {
+                    "parameters": [
+                        {
+                            "name": "subnet",
+                            "type": "object"
+                        }
+                    ],
+                    "output": {
+                        "type": "object",
+                        "value": {
+                            "name": "[parameters('subnet').name]",
+                            "properties": {
+                                "addressPrefix": "[parameters('subnet').addressPrefix]",
+                                "serviceEndpoints": "[parameters('subnet').serviceEndpoints]",
+                                "delegations": "[parameters('subnet').delegations]"
+                            }
+                        }
+                    }
+                },
+                "subnetWithNsg": {
+                    "parameters": [
+                        {
+                            "name": "subnet",
+                            "type": "object"
+                        }
+                    ],
+                    "output": {
+                        "type": "object",
+                        "value": {
+                            "name": "[parameters('subnet').name]",
+                            "properties": {
+                                "addressPrefix": "[parameters('subnet').addressPrefix]",
+                                "networkSecurityGroup": {
+                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg-', parameters('subnet').name))]"
+                                },
+                                "serviceEndpoints": "[parameters('subnet').serviceEndpoints]",
+                                "delegations": "[parameters('subnet').delegations]"
+                            }
+                        }
+                    }
+                },
+                "subnetWithRouteTable": {
+                    "parameters": [
+                        {
+                            "name": "subnet",
+                            "type": "object"
+                        }
+                    ],
+                    "output": {
+                        "type": "object",
+                        "value": {
+                            "name": "[parameters('subnet').name]",
+                            "properties": {
+                                "addressPrefix": "[parameters('subnet').addressPrefix]",
+                                "routeTable": {
+                                    "id": "[resourceId('Microsoft.Network/routeTables', concat('rt-', parameters('subnet').name))]"
+                                },
+                                "serviceEndpoints": "[parameters('subnet').serviceEndpoints]",
+                                "delegations": "[parameters('subnet').delegations]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat('rt-', parameters('virtualNetwork').subnets[copyIndex('routeTableCopy')].name)]",
+            "type": "Microsoft.Network/routeTables",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "condition": "[not(empty(parameters('virtualNetwork').subnets[copyIndex('routeTableCopy')].routingRules))]",
+            "copy": {
+                "count": "[length(parameters('virtualNetwork').subnets)]",
+                "name": "routeTableCopy"
+            },
+            "tags": {
+            },
+            "properties": {
+                "routes": "[parameters('virtualNetwork').subnets[copyIndex('routeTableCopy')].routingRules]",
+                "disableBgpRoutePropagation": "[parameters('virtualNetwork').subnets[copyIndex('routeTableCOpy')].disableBgpRoutePropagation]"
+            }
+        },
+        {
+            "name": "[concat('nsg-', parameters('virtualNetwork').subnets[copyIndex('nsgCopy')].name)]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "condition": "[not(empty(parameters('virtualNetwork').subnets[copyIndex('nsgCopy')].securityRules))]",
+            "copy": {
+                "count": "[length(parameters('virtualNetwork').subnets)]",
+                "name": "nsgCopy"
+            },
+            "properties": {
+                "securityRules": "[parameters('virtualNetwork').subnets[copyIndex('nsgCopy')].securityRules]"
+            }
+        },
+        {
+            "name": "[parameters('virtualNetwork').name]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "nsgCopy",
+                "routeTableCopy"
+            ],
+            "tags": {
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('virtualNetwork').addressPrefixes]"
+                },
+                "copy": [
+                    {
+                        "name": "subnets",
+                        "count": "[length(parameters('virtualNetwork').subnets)]",
+                        "input": "[if(and(not(empty(parameters('virtualNetwork').subnets[copyIndex('subnets')].routingRules)), not(empty(parameters('virtualNetwork').subnets[copyIndex('subnets')].securityRules))), functions.subnetWithNsgAndRouteTable(parameters('virtualNetwork').subnets[copyIndex('subnets')]), if(not(empty(parameters('virtualNetwork').subnets[copyIndex('subnets')].securityRules)), functions.subnetWithNsg(parameters('virtualNetwork').subnets[copyIndex('subnets')]), if(not(empty(parameters('virtualNetwork').subnets[copyIndex('subnets')].routingRules)), functions.subnetWithRouteTable(parameters('virtualNetwork').subnets[copyIndex('subnets')]), functions.subnetWithoutNsgOrRouteTable(parameters('virtualNetwork').subnets[copyIndex('subnets')]))))]"
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
